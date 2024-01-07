@@ -1,3 +1,7 @@
+
+In Linux, nearly everything you deal with directly is a file, and most often these will be text files; for instance, all configuration files in Linux are text files. So to reconfigure an application, you simply open the configuration file, change the text, save the file, and then restart the application—your reconfiguration is complete.
+
+
 # Displaying the first lines
 head /etc/snort/snort.conf 
 head -20 /etc/snort/snort.conf
