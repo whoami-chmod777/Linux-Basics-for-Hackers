@@ -1,1 +1,93 @@
+To get the most from your Linux hacking system, you need to understand environment variables and be adept at managing them for optimal performance, convenience, and even stealth. Among the areas that Linux newcomers find problematic, however, managing the user environment variables might be the most difficult to master.
 
+Technically, there are two types of variables: shell and environment. Environment variables are system-wide variables built into your system and interface that control the way your system looks, acts, and “feels” to the user, and they are inherited by any child shells or processes. Environment variables are always uppercase, as in HOME, PATH, SHELL and so on.Shell variables, on the other hand, are typically listed in lowercase and are only valid in the shell they are set in.
+
+One of the most important variables in your environment is your PATH variable, which controls where on your system your shell will look for commands you enter, such as cd, ls, and echo. Most commands are located in the sbin or bin subdirectory, like /usr/local/sbin or usr/local/bin.
+
+
+-- Variables are simply strings in key-value pairs --
+
+KEY=value
+KEY=value1:value2
+
+
+-- Viewing and Modifying Environment Variables --
+
+kali >env
+
+
+-- Viewing All Environment Variables --
+
+kali >set | more
+
+
+-- Filtering for Particular Variables --
+
+kali >set | grep HISTSIZE
+
+
+-- Changing Variable Values for a Session --
+
+kali >HISTSIZE=0
+
+
+-- Making Variable Value Changes Permanent --
+
+kali >echo $HISTSIZE> ~/valueofHISTSIZE.txt
+kali >set> ~/valueofALLon01012017.txt
+
+kali >export HISTSIZE
+kali >HISTSIZE=1000
+kali >export HISTSIZE
+
+
+-- Changing Your Shell Prompt --
+
+- Default Shell Prompt -
+
+username@hostname:current_directory
+root@kali:current_directory
+
+\u The name of the current user
+\h The hostname
+\W The base name of the current working directory
+
+kali >PS1="World's Best Hacker: #"
+World's Best Hacker: #
+
+kali >export PS1
+
+kali >export PS1='C:\w> '
+C:/tmp>
+
+
+-- Changing Your PATH --
+
+kali >echo $PATH
+
+
+-- Adding to the PATH Variable --
+
+kali >PATH=$PATH:/root/newhackingtool
+
+
+-- How Not to Add to the PATH Variable --
+
+One mistake commonly made by new Linux users is assigning a new directory, such as /root/newhackingtool, directly to the PATH variable in this way:
+
+kali >PATH=/root/newhackingtool
+kali >echo $PATH
+/root/newhackingtool
+
+If you use this command, your PATH variable will only contain the /root/newhackingtool directory and no longer contain the system binaries directories such as /bin, /sbin, and others that hold critical commands. When you then go to use any of the system commands, you’ll receive the error command not found
+
+Remember that you want to append to the PATH variable, not replace it. If you’re in doubt, save the contents of the variable somewhere before you modify it.
+
+
+-- Creating a User-Defined Variable --
+
+kali >MYNEWVARIABLE="Hacking is the most valuable skill set in the 21st century"
+kali >echo $MYNEWVARIABLE
+
+kali >unset MYNEWVARIABLE
+kali >echo $MYNEWVARIABLE
