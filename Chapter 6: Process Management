@@ -86,3 +86,11 @@ at 7:20pm 06/25/2019  Scheduled to run at 7:20 pm on June 25, 2019
 
 kali >at 7:20am
 at >/root/myscanningscript
+
+
+# Remember, proc is a directory that does not exist on the drive. It allows us to see data associated with the various processes directly
+
+cd /proc
+/proc# ls -lrt
+strings ./exe
+
