@@ -36,6 +36,11 @@ dig hackers-arise.com MX
 dig hackers-arise.com A
 dig hackers-arise.com SOA
 
+# Network Connections
+netstat -nap
+lsof -i
+lsof -i -P
+lsof -p 320
 
 # Changing Your DNS Server
 leafpad /etc/resolv.conf
