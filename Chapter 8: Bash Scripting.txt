@@ -1,1 +1,158 @@
 
+Any self-respecting hacker must be able to write scripts. For that matter, any selfrespecting Linux administrator must be able to script. Hackers often need to automate commands, sometimes from multiple tools, and this is most efficiently done through short programs they write themselves.
+
+To become an elite hacker, you also need the ability to script in one of the widely used scripting languages, such as Ruby (Metasploit exploits are written in Ruby), Python (many hacking tools are Python scripts), or Perl (Perl is the best text-manipulation scripting language).
+
+
+-- A Crash Course in Bash --
+
+A shell is an interface between the user and the operating system that enables you to manipulate files and run commands, utilities, programs, and much more. The advantage of a shell is that you perform these tasks immediately from the computer and not through an abstraction, like a GUI, which allows you to customize your task to your needs. The bash shell is available on nearly all Linux and UNIX distributions (including macOS and Kali)
+
+
+-- First Script: "Hello, Hackers-Arise!" --
+
+For the first script, we will start with a simple program that returns a message to the screen that says "Hello, Hackers-Arise!"
+
+#! --> shebang, which is a combination of a hash mark and an exclamation mark
+
+/bin/bash --> indicate that you want the operating system to use the bash shell interpreter
+
+# --> This is a comment, which is a note you leave to yourself or anyone else reading the code to explain what you’re doing in the script
+
+-- Script --
+
+#! /bin/bash
+
+# This is my first bash script. Wish me luck.
+echo "Hello, Hackers-Arise!"
+
+
+-- Setting Execute Permissions --
+
+We need to give ourselves execute permissions in order to run this script.
+
+kali >ls -l
+- rw-r--r-- 1 root root 90 Oct 22 14:32 HelloHackersArise
+
+kali >chmod 755 HelloHackersArise
+
+kali >ls -l
+- rwx r-x r-x 1 root root 42 Oct 22 14:32 HelloHackersArise
+
+
+-- Running HelloHackersArise --
+
+The ./ before the filename tells the system that we want to execute this script in the file HelloHackersArise from the current directory.
+
+kali >./HelloHackersArise
+
+
+-- Adding Functionality with Variables and User Input --
+
+If we want to create more advanced scripts, we will likely need to add some variables. A variable is an area of storage that can hold something in memory.
+
+-- Script --
+
+#! /bin/bash
+
+# This is your second bash script. In this one, you prompt
+# the user for input, place the input in a variable, and
+# display the variable contents in a string.
+
+echo "What is your name?"
+read name
+
+echo "What chapter are you on in Linux Basics for Hackers?"
+read chapter
+
+echo "Welcome $name to Chapter $chapter of Linux Basics for Hackers!"
+
+kali >./WelcomeScript.sh
+
+
+-- A Simple Scanner --
+
+-- Script --
+
+nmap <type of scan><target IP><optionally, target port>
+
+nmap -sT 192.168.181.1 -p 3306
+
+The redirect symbol > tells the standard nmap output, which usually goes to the screen, to instead go to /dev/null, which is simply a place to send output so that it disappears
+
+#! /bin/bash
+
+# This script is designed to find hosts with MySQL installed
+
+nmap -sT 192.168.181.0/24 -p 3306 > /dev/null -oG MySQLscan
+
+cat MySQLscan | grep open > MySQLscan2
+
+cat MySQLscan2
+
+kali >./MySQLscanner.sh
+
+**Improving the MySQL Scanner**
+
+#! /bin/bash
+
+echo "Enter the starting IP address : "
+read FirstIP
+
+echo "Enter the last octet of the last IP address : "
+read LastOctetIP
+
+echo "Enter the port number you want to scan for : "
+read port
+
+nmap -sT $FirstIP-$LastOctetIP -p $port > /dev/null -oG MySQLscan
+
+cat MySQLscan | grep open > MySQLscan2
+cat MySQLscan2
+
+*NOTE: The name of the variable is irrelevant, but best practice is to use a variable name that helps you remember what the variable holds.*
+
+kali >./MySQLscannerAdvanced.sh
+
+Enter the starting IP address :
+192.168.181.0
+
+Enter the last octet of the last address :
+255
+
+Enter the port number you want to scan for :
+3306
+
+Host: 192.168.181.254 () Ports:3306/open/tcp//mysql//
+
+
+-- Common Built-in Bash Commands --
+
+:			    Returns 0 or true
+.			    Executes a shell script
+bg			  Puts a job in the background
+break		  Exits the current loop
+cd			  Changes directory
+continue	Resumes the current loop
+echo		  Displays the command arguments
+eval		  Evaluates the following expression
+exec		  Executes the following command without creating a new process, replacing the current process
+exit		  Quits the shell
+export		Makes a variable or function available to other programs that are executed from this shell
+fg			  Brings a job to the foreground
+getopts		Parses arguments to the shell script
+jobs		  Lists background (bg) jobs
+pwd			  Displays the current directory
+read		  Reads a line from standard input
+readonly	Declares as variable as read-only
+set			  Lists all variables
+shift		  Moves the script’s input parameters to the left, dropping the first parameter (useful for consuming all parameters one at a time)
+test		  Evaluates arguments
+[[			  Performs a conditional test
+times		  Prints the user and system times
+trap		  Traps a signal so the script can handle it (untrapped signals terminate the script)
+type		  Displays how each argument would be interpreted as a command
+umask		  Changes the default permissions for a new file
+unset		  Deletes values from a variable or function
+wait		  Waits for a background process to complete
+
