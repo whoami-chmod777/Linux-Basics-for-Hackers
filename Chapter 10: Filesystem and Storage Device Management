@@ -1,1 +1,175 @@
 
+If you are coming from a Windows environment, the  way that Linux represents and manages storage devices will look rather  different to you. You’ve already seen that the filesystem has no  physical representation of the drive, like the C:, D:, or E: system in Windows, but rather has a file tree structure with / at the top, or root, of it.
+
+Mounting in this context simply means attaching drives or disks to the filesystem to make them accessible to the operating system (OS).
+
+The Device Directory /dev
+Linux has a special directory that contains files representing each attached device: the appropriately named /dev directory.
+
+kali >cd /dev
+kali >ls -l
+total 0
+crw-------   1   root root   10, 175   May 16   12:44 agpgart
+crw-------   1   root root   10, 235   May 16   12:44 autofs
+drwxr-xr-x   1   root root       160   May 16   12:44 block
+--snip--
+lrwxrwxrwx   1   root root         3   May 16   12:44 cdrom -> sr0
+--snip--
+drwxr-xr-x   2   root root        60   May 16   12:44 cpu
+--snip--
+
+brw-rw----   1   root root         8,      0    May 16 12:44   sda
+brw-rw----   1   root root         8,      1    May 16 12:44   sda1
+brw-rw----   1   root root         8,      2    May 16 12:44   sda2
+brw-rw----   1   root root         8,      5    May 16 12:44   sda5
+brw-rw----   1   root root         8,      16   May 16 12:44   sdb
+brw-rw----   1   root root         8,      17   May 16 12:44   sdb1
+--snip--
+
+Each device on your system is represented by a file in the /dev directory, including devices you’ve probably never used or even realized existed. The devices sda1, sda2, sda3, sdb, and sdb1, are usually the hard drive and its partitions and a USB flash drive and its partitions.
+
+
+-- How Linux Represents Storage Devices --
+
+Originally, Linux represented floppy drives as fd0 and hard drives used IDE or E-IDE interface as hda, and SATA & SCSI hard drives are represented as sda.
+When systems have more than one hard drive, Linux simply names them serially by incrementing the last letter in alphabetical order, so the first drive is sda, and the second drive is sdb, the third drive is sdc, and so on.
+
+Device file    Description
+sda            First SATA hard drive
+sdb            Second SATA hard drive
+sdc            Third SATA hard drive
+sdd            Fourth SATA hard drive
+
+Some drives can be split into partitions in order to manage and separate information. This way, the first partition on the first SATA drive would be sda1. The second partition would then be sda2, the third sda3, and so on.
+
+Partition   Description
+sda1        The first partition (1) on the first (a) SATA drive
+sda2        The second (2) partition on the first (a) drive
+sda3        The third (3) partition on the first (a) drive
+sda4        The fourth (4) partition on the first (a) drive
+
+
+-- Listing partitions --
+
+kali >fdisk
+kali >fdisk -l
+
+kali >fdisk -l
+Disk /dev/sda:   20GiB,   21474836480 bytes,   41943040   sectors
+Units:   sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: dos
+Disk identifier: 0x7c06cd70
+
+Device      Boot     Start        End   Sectors    Size   Id Type
+/dev/sda1    *        2048   39174143  39172096   18.7G   83 Linux
+/dev/sda2         39176190   41940991   2764802    1.3G   5 Extended
+/dev/sda5         39176192   41940991   2764800    1.3G   82 Linux swap / Solaris
+
+Disk /dev/sdb: 29.8 GiB, 31999393792 bytes, 62498816 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: dos
+Disk identifier: 0xc3072e18
+
+Device      Boot   Start        End    Sectors    Size  Id   Type
+/dev/sdb1             32   62498815   62498784   29.8G   7   HPFS/NTFS/exFAT
+
+New versions of Windows use an NTFS filesystem, whereas older Windows systems use File Allocation Table (FAT) systems. Linux uses a number of different types of filesystems, but the most common are ext2, ext3, and ext4.
+
+
+-- Character and Block Devices --
+
+Something else to note about the naming of device files in the /dev directory is that the first position contains either c or b.
+
+crw-------   1   root root   10, 175   May 16   12:44 agpgart
+
+These letters represent the two ways that devices transfer data in and out. The c stands for character, and these devices are known, as you might expect, as character  devices. External devices that interact with the system by sending and  receiving data character by character, such as mice or keyboards, are  character devices.
+The b stands for the second type: block  devices. They communicate in blocks of data (multiple bytes at a time)  and include devices like hard drives and DVD drives. These devices  require higher-speed data throughput and therefore send and receive data  in blocks (many characters or bytes at a time).
+
+
+-- Listing block device information --
+
+kali >lsblk
+Name      MAJ:MIN   RM  SIZE   RO  TYPE   MOUNTPOINT
+fd0         2:0      1    4K   0   disk
+sda1        8:0      0   20G   0   disk
+|-sda1      8:1      0 18.7G   0   part   /
+|-sda2      8:2      0    1K   0   part
+|-sda5      8:5      0  1.3G   0   part   [SWAP]
+sdb         8:16     1 29.8G   0   disk
+|-sdb1      8.17     1 29.8G   0   disk   /media
+sr0         11:0     1  2.7G   0   rom
+
+
+-- Mounting and Unmounting --
+
+A storage device must be first physically connected to the filesystem and then logically attached to the filesystem in order for the data to be made available to the operating system. The point in the directory tree where devices are attached is known as the mount point. The two main mount points in Linux are /mnt and /media.
+The mount point for the device should be an empty directory; if you mount a device on a directory that has subdirectories and files, the mounted device will cover the contents of the directory, making them invisible and unavailable.
+
+
+-- Mounting & Unmounting Storage Devices --
+
+[new hard drive]
+kali >mount /dev/sdb1 /mnt
+kali >umount /dev/sdb1
+
+[flash drive]
+kali >mount /dev/sdc1 /media
+
+
+-- Monitoring Filesystems --
+
+kali >df
+Filesystem          1K-Blocks       Used  Available    Use%      Mounted on
+rootfs               19620732   17096196    1504788     92%      /
+udev                    10240          0      10240      0%      /dev
+--snip--
+/dev/sdb1            29823024   29712544      110480    99%      /media/USB3.0
+
+
+-- Checking for Errors --
+
+kali >fsck
+fsck from util-linux 2.20.1
+e2fsck 1.42.5 (29-Jul-2012)
+/dev/sda1 is mounted
+e2fsck: Cannot continue, aborting.
+
+
+kali >umount /dev/sdb1
+
+kali >fsck -p /dev/sdb1
+fsck from util-linux 2.30.2
+exfatfsck 1.2.7
+Checking file system on /dev/sdb1.
+File system version            1.0
+Sector size                  512 bytes
+Cluster size                  32 KB
+Volume size                 7648 MB
+Used space                  1265 MB
+Available space             6383 MB
+Totally 20 directories and 111 files.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
