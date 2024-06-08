@@ -1,1 +1,157 @@
 
+For any Linux user, it’s crucial to be knowledgeable in the use of the log files. Log files store information about events that occur when the operating system and applications are run, including any errors and security alerts. Your system will log information automatically based on the series of rules. You will see how to examine and configure log files, as well as how to remove evidence of your activity and even disable logging altogether.
+
+- The rsyslog Logging Daemon -
+
+Linux uses a daemon called syslogd to automatically log events on your computer. Several variations of syslog, including rsyslog and syslog-ng, are used on different distributions of Linux, and even though they operate very similarly, some minor differences exist.
+
+kali >locate rsyslog
+/etc/rsyslog.conf
+/etc/rsyslog.d
+/etc/default/rsyslog
+/etc/init.d/rsyslog
+/etc/logcheck/ignore.d.server/rsyslog
+/etc/logrotate.d/rsyslog
+/etc/rc0.d/K04rsyslog
+--snip--
+
+kali >sudo find / -name rsyslog.conf
+kali >sudo find / -name rsyslog.conf 2>/dev/null
+
+
+- Check if rsyslog is installed -
+
+kali >dpkg -l | grep rsyslog
+
+kali >sudo apt-get update
+kali >sudo apt-get install rsyslog
+
+
+- The rsyslog Configuration File -
+
+Like nearly every application in Linux, rsyslog is managed and configured by a plaintext configuration file located, as is generally the case in Linux, in the /etc directory.
+
+kali >leafpad /etc/rsyslog.conf
+
+
+- The rsyslog Logging Rules -
+
+The rsyslog rules determine what kind of information is logged, what programs have their messages logged, and where that log is stored.
+
+###############
+#### RULES ####
+###############
+#
+# First some standard log files. Log by facility.
+#
+auth,authpriv.*             /var/log/auth.log
+*.*;auth,authpriv.none      -/var/log/syslog
+#cron.*                     /var/log/cron.log
+daemon.*                    -/var/log/daemon.log
+kern.*                      -/var/log/kern.log
+1pr.*                       -/var/log/lpr.log
+mail.*                      -/var/log/mail.log
+user.*                      -/var/log/user.log
+#
+# Logging for the mail system. Split it up so that
+# it is easy to write scripts to parse these files.
+#
+mail.info                   -/var/log/mail.info
+mail.warn                   -/var/log/mail.warn
+mail.err                    /var/log/mail.err
+
+Each line is a separate logging rule that says what  messages are logged and where they’re logged to. The basic format for  these rules is as follows:
+
+facility.priority            action
+
+The facility keyword references the program, such as mail, kernel, or lpr, whose messages are being logged. The priority keyword determines what kind of messages to log for that program. The action keyword, on the far right, references the location where the log will be sent.
+
+Aa list of valid codes that can be used in place of the facility keyword in our configuration file rules:
+
+• auth, authpriv - Security/authorization messages
+• cron - Clock daemons
+• daemon - Other daemons
+• kern - Kernel messages
+• lpr - Printing system
+• mail - Mail system
+•  user - Generic user-level messages
+
+An asterisk wildcard (*) in place of a word refers to all facilities. You can select more than one facility by listing them separated by a comma.
+
+The priority tells the system what kinds of messages to log. Codes are listed from lowest priority, starting at debug, to highest priority, ending at panic. If the priority is *, messages of all priorities are logged. When you specify a priority, messages of that priority and higher are logged.
+
+Here’s the full list of valid codes for priority:
+
+•  debug
+•  info
+•  notice
+•  warning
+•  warn
+•  error
+•  err
+•  crit
+•  alert
+•  emerg
+•  panic
+
+The codes warn, error, and panic have all been deprecated and should not be used. The action is usually a filename and location where the logs should be sent. Note that generally, log files are sent to the /var/log directory with a filename that describes the facility that generated them
+
+mail.* /var/log/mail
+kern.crit /var/log/kernel
+*.emerg :omusmsg:*
+
+
+- Automatically Cleaning Up Logs with logrotate -
+
+You can use logrotate to determine the balance between these opposing requirements by rotating your logs. Log rotation is the process of regularly archiving log files by moving them to some other location, leaving you with a fresh log file. That archived location will then get cleaned up after a specified period of time.
+
+   # see "man logrotate" for details
+   # rotate log files weekly
+➊ weekly
+
+   # keep 4 weeks worth of backlogs
+➋ rotate 4
+
+➌ # create new (empty) log files after rotating old ones
+  create
+
+➍ # uncomment this if you want your log files compressed
+  #compress
+
+  # packages drop log rotation information into this directory
+  include /etc/logrotate.d
+
+  # system-specific logs may also be configured here
+
+kali >ls /var/log/auth.log*
+/var/log/auth.log.1
+/var/log/auth.log.2
+/var/log/auth.log.3
+/var/log/auth.log.4
+
+
+- Remaining Stealthy -
+
+Once you’ve compromised a Linux system, it’s useful to disable logging and remove any evidence of your intrusion in the log files to reduce the chances of detection.
+
+
+- Removing Evidence -
+
+First, you’ll want to remove any logs of your  activity. You could simply open the log files and precisely remove any logs detailing your activity, line by line. A better and more secure solution is to shred the log files
+
+kali >shred --help
+Usage: shred [OPTION]...FILE...
+Overwrite the specified FILE(s) repeatedly in order to make it harder
+for even very expensive hardware probing to recover data
+--snip--
+
+shred <FILE>
+kali >shred -f -n 10 /var/log/auth.log.*
+
+
+- Disabling Logging -
+
+Another option for covering your tracks is to simply disable logging. When a hacker takes control of a system, they could immediately disable logging to prevent the system from keeping track of their activities.
+
+service servicename start|stop|restart
+kali >service rsyslog stop
