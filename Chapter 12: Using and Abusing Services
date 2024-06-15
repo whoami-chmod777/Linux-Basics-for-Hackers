@@ -1,1 +1,181 @@
 
+In Linux terminology, a service is an  application that runs in the background waiting for you to use it. Your  Linux system has dozens of services preinstalled. 
+
+-- Starting, Stopping, and Restarting Services --
+
+service servicename start|stop|restart
+
+kali >service apache2 start
+kali >service apache2 stop
+kali >service apache2 restart
+
+
+-- Creating an HTTP Web Server with the Apache Web Server --
+
+The Apache Web Server is often associated with the MySQL database and these two services are very often paired with a scripting language such as Python or PHP to develop web applications.
+
+kali >apt-get install apache2
+kali >service apache2 start
+
+http://localhost/
+
+
+-- Editing the index.html File --
+
+Apache’s default web page is at /var/www/html/index.html.
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtm11/DTD/xhtm11-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml>
+    <head>
+         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" I>
+    ➊ <title>Apache2 Debian Default Page: It works</title>
+         <style type="text/css" media="screen">
+    * {
+         margin: Opx Opx Opx Opx;
+         padding: Opx Opx Opx Opx;
+    }
+body, html {
+    padding: 3px 3px 3px 3px;
+    background-color: #D8DBE2;
+    font-family: Verdana, sans-serif;
+    font-size: 11pt;
+    text-align: center;
+}
+div.main_page {
+    position: relative;
+    display: table;
+--snip--
+
+
+-- Adding Some HTML --
+
+<html>
+<body>
+<h1>Hackers-Arise Is the Best! </h1>
+<p> If you want to learn hacking, Hackers-Arise.com </p>
+<p> is the best place to learn hacking!</p>
+</body>
+</html>
+
+If you having saved our /var/www/html/index.html file navigate your browser once again to http://localhost
+
+
+-- OpenSSH and the Raspberry Spy Pi --
+
+SSH is an acronym for Secure Shell and is basically what enables us to connect securely to a terminal on a remote system - a replacement for the insecure telnet that was so common decades ago. When we’re building a web server, SSH enables us to create an access list (a list of users who can use this service), authenticate users with encrypted passwords, and encrypt all communication.
+
+kali >service ssh start
+
+$ pi >service ssh start
+
+kali >ssh pi@192.168.1.101
+pi@192.168.1.101’s password:
+
+
+-- MySQL/MariaDB --
+
+MySQL is the most widely used database behind database-driven web applications. In our modern era of Web 2.0 technologies, where nearly every website is database driven, this means MySQL/MariaDB holds the data for most of the web.
+Being free, open source, and powerful, MySQL and MariaDB have become the databases of choice for many web applications, including popular websites such as WordPress, Facebook, LinkedIn, Twitter, Kayak, Walmart.com, Wikipedia, and YouTube.
+Other popular content management systems (CMSs) such as Joomla, Drupal, and Ruby on Rails all use MySQL, too.
+
+- Starting MySQL or MariaDB -
+
+kali >service mysql start
+kali >mysql -u root -p
+
+# Setting a Password
+mysql >select user, host, password from mysql.user;
+mysql >show databases;
+mysql >use mysql;
+mysql >update user set password = PASSWORD("hackers-arise") where user = 'root';
+
+# Accessing a Remote Database
+kali >mysql -u <username> -p
+kali >mysql -u root -p 192.168.1.101
+
+-  Connecting to a Database Example -
+
+mysql >show databases;
++-------------------------------+
+| Database                      |
++-------------------------------+
+| information schema            |
+| mysql                         |
+| creditcardnumbers             |
+| performance_schema            |
++-------------------------------+
+4 rows in set (0.26 sec)
+
+mysql >use creditcardnumbers;
+Database changed
+
+mysql >show tables;
++-----------------------------------+
+| Tables_in_creditcardnumbers       |
++-----------------------------------+
+|   cardnumbers                     |
++-----------------------------------+
+1 row in set (0.14 sec)
+
+mysql >describe cardnumbers;
++---------------+---------------+----------+------------+---------+---------+
+| Field         | Type          | Null     | Key        | Default | Extra   |
++---------------+---------------+----------+------------+---------+---------+
+| customers     | varchar(15)   | YES      |            | NULL    |         |
+| address       | varchar(15)   | YES      |            | NULL    |         |
+| city          | varchar(15)   | YES      |            | NULL    |         |
+| state         | varchar(15)   | YES      |            | NULL    |         |
+| cc            | int(12)       | NO       |            | 0       |         |
++---------------+---------------+----------+------------+---------+---------+
+
+mysql >SELECT * FROM cardnumbers;
++-----------+---------------+-------------+---------+--------------+
+| customers | address       | city        | state   | cc           |
++-----------+---------------+-------------+---------+--------------+
+| Jones     |  1 Wall St    | NY          | NY      |   12345678   |
+| Sawyer    | 12 Piccadilly | London      | UK      |  234567890   |
+| Doe       | 25 Front St   | Los Angeles | CA      | 4567898877   |
++-----------+---------------+-------------+---------+--------------+
+
+- Commands Overview -
+
+mysql >show databases;
+mysql >show tables;
+mysql >describe cardnumbers;
+mysql >SELECT * FROM cardnumbers;
+
+MySQL comes with three databases by default, two of which (information_schema and performance_schema) are administrative databases that we won’t use here. We’ll use the non-administrative database, mysql, which is included for your own purposes. By default, the mysql database has no password).
+Remember that all commands must end in a semicolon or \g (unlike Microsoft’s SQL Server) and that we can get help by entering help; or \h.
+If the data type it holds (often the text type varchar or integer type int). We can also see whether it will accept NULL values; the key, if any exists (the key links tables); any default values a field might have; and any extra information at the end, such as notes
+
+
+-- Interacting with SQL --
+
+select   Used to retrieve data
+union    Used to combine the results of two or more select operations
+insert   Used to add new data
+update   Used to modify existing data
+delete   Used to delete data
+
+PostgreSQL with Metasploit
+PostgreSQL, or just Postgres, is another open source relational database often used in very large, internet-facing applications due to its ability to scale easily and handle heavy workload
+
+kali >apt-get postgres install
+kali >service postgresql start
+
+kali >msfconsole
+msf >msfdb init
+msf >su postgres
+
+postgres@kali:/root$ createuser msf_user -P
+postgres@kali:/root$ createdb --owner=msf_user hackers_arise_db
+postgres@kali:/root$ exit
+
+# Connect Metasploit, msfconsole, to PostgreSQL database by defining; user, password, host, database name
+
+msf >db_connect msf_user:password@127.0.0.1/hackers_arise_db
+msf >db_status
+
+
+https://www.raspberrypi.com/software/
