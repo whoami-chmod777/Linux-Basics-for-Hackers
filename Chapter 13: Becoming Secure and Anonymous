@@ -1,1 +1,157 @@
 
+oday, nearly everything we do on the internet is tracked. Whoever is doing the tracking - whether it be Google tracking our online searches, website visits, and email or the National Security Agency (NSA) cataloging all our activities - our every online move is being recorded, indexed, and then mined for someone’s benefit. The average individual - and the hacker, in particular - needs to understand how to limit this tracking and remain relatively anonymous on the web to limit this ubiquitous surveillance.
+
+-- How the Internet Gives Us Away --
+
+When you send a packet of data across the internet, it contains the IP addresses of the source and destination for the data. In this way, the packet knows where it is going and where to return the response. Each packet hops through multiple internet routers until it finds its destination and then hops back to the sender. For general internet surfing, each hop is a router the packet passes through to get to its destination. There can be as many as 20–30 hops between the sender and the destination, but usually any packet will find its way to the destination in fewer than 15 hops
+
+To see what hops a packet might make between you and the destination, you can use the traceroute command
+
+kali >traceroute google.com 
+traceroute to google.com (172.217.1.78), 30 hops max, 60 bytes packets
+1   192.168.1.1 (192.168.1.1)   4.152 ms 3.834 ms 32.964 ms
+2   10.0.0.1 (10.0.0.1)   5.797 ms 6.995 ms 7.679 ms
+3   96.120.96.45 (96.120.96.45)   27.952 ms 30.377 ms 32.964 ms
+--snip--
+18 lgal15s44-in-f14.le100.net (172.217.1.78)   94.666 ms 42.990 ms 41.564 ms
+
+
+-- The Onion Router System --
+
+Packets sent over Tor are not sent over the regular routers so closely monitored by so many but rather are sent over a network of over 7,000 routers around the world, thanks to volunteers who allow their computers to be used by Tor. On top of using a totally separate router network, Tor encrypts the data, destination, and sender IP address of each packet. At each hop, the information is encrypted and then decrypted by the next hop when it’s received. In this way, each packet contains information about only the previous hop along the path and not the IP address of the origin. If someone intercepts the traffic, they can see only the IP address of the previous hop, and the website owner can see only the IP address of the last router that sent the traffic
+To enable the use of Tor, just install the Tor browser from https://www.torproject.org/. Once installed, you can use it like any old internet browser. By using this browser, you’ll be navigating the internet through a separate set of routers and will be able to visit sites without being tracked by Big Brother. Unfortunately, the tradeoff is that surfing via the Tor browser can be a lot slower; because there are not nearly as many routers, the bandwidth is limited in this network.
+In addition to being capable of accessing nearly any website on the traditional internet, the Tor browser is capable of accessing the dark web. The websites that make up the dark web require anonymity, so they allow access only through the Tor browser, and they have addresses ending in .onion for their top-level domain (TLD). The dark web is infamous for illegal activity, but a number of legitimate services are also available there.
+Tor’s anonymity has been broken before by these authorities and will likely be broken again. The NSA, as one instance, runs its own Tor routers, meaning that your traffic may be traversing the NSA’s routers when you use Tor. If your traffic is exiting the NSA’s routers, the exit router always knows your destination. The NSA also has a method known as traffic correlation, which involves looking for patterns in incoming and outgoing traffic, that has been able to break Tor’s anonymity.
+
+
+-- Proxy Servers --
+
+Another strategy for achieving anonymity on the internet is to use proxies, which are intermediate systems that act as middlemen for traffic: the user connects to a proxy, and the traffic is given the IP address of the proxy before it’s passed on. When the traffic returns from the destination, the proxy sends the traffic back to the source. To make your traffic even harder to trace, you can use more than one proxy, in a strategy known as a proxy chain.
+
+kali >proxychains < the command you want proxied> < arguments>
+kali >proxychains nmap -sT -Pn <IP address>
+
+- Setting Proxies in the Config File -
+
+Configuration of proxychains is managed by the config file - specifically /etc/proxychains.conf
+
+kali >leafpad /etc/proxychains.conf
+
+# proxychains.conf VER 3.1
+# HTTP, SOCKS4, SOCKS5 tunneling proxifier with DNS.
+# The option below identifies how the ProxyList is treated.
+# only one option should be uncommented at time,
+# otherwise the last appearing option will be accepted
+#
+# dynamic_chain
+#
+# Dynamic - Each connection will be done via chained proxies
+# all proxies chained in the order as they appear in the list
+# at least one proxy must be online to play in chain
+# (dead proxies are skipped)
+# otherwise EINTR is returned to the app
+#
+# strict chain
+#
+# Strict - Each connection will be done via chained proxies
+# all proxies chained in the order as they appear in the list
+# all proxies must be online to play in chain
+# otherwise EINTR is returned to the app
+--snip--
+
+[ProxyList]
+# add proxy here...
+# meanwhile
+# defaults set to "tor"
+socks4 127.0.0.1 9050
+
+We can add proxies by entering the IP addresses and ports of the proxies we want to use in this list. You can find free proxies by googling “free proxies” or using the site http://www.hidemyna.me
+
+ [ProxyList]
+# add proxy here...
+socks4 114.134.186.12 22020
+# meanwhile
+# defaults set to "tor"
+# socks4 127.0.0.1 9050
+
+kali >proxychains firefox www.hackers-arise.com
+
+It’s important to note that proxychains defaults to using Tor if you don’t enter any proxies of your own.
+We can put multiple proxies and use all of them, we can use a limited number from the list, or we can have proxychains change the order randomly
+
+[ProxyList]
+# add proxy here...
+socks4 114.134.186.12 22020
+socks4 188.187.190.59 8888
+socks4 181.113.121.158 335551
+
+Your packet is now traveling through several proxies.
+
+- Dynamic Chaining -
+
+With multiple IPs in the proxychain.conf file, we can set up dynamic chaining, which runs our traffic through every proxy on our list and, if one of the proxies is down or not responding, automatically goes to the next proxy in the list without throwing an error.
+
+# dynamic_chain
+#
+# Dynamic – Each connection will be done via chained proxies
+# all proxies chained in the order as they appear in the list
+# at least one proxy must be online to play in chain
+--snip--
+
+- Random Chaining -
+random chaining option will randomly choose a set of IP addresses from our list and use them to create our proxy chain.
+Go back inside the /etc/proxychains.conf file and comment out the lines dynamic_chain and strict_chain by adding a # at the start of each line; then uncomment the random_chain line. We can only use one of these three options at a time, so make certain you comment out the other options before using proxychains.
+
+# dynamic_chain
+#
+# Dynamic – Each connection will be done via chained proxies
+# all proxies chained in the order as they appear in the list
+# at least one proxy must be online to play in chain
+#
+# strict_chain
+#
+# Strict - Each connection will be done via chained proxies
+# all proxies chained in the order as they appear in the list
+# all proxies must be online to play in chain
+# otherwise EINTR is returned to the app
+#
+random_chain
+# Random - Each connection will be done via random proxy
+# (or proxy chain, see chain_len) from the list.
+# this option is good to test your IDS :)
+# Makes sense only if random_chain
+chain_len = 3
+
+Here, I have uncommented chain_len and given it a value of 3, meaning proxychains will now use three proxies from my list in the /etc/proxychains.conf file, choosing them randomly and moving onto the next one if a proxy is down.
+Be sure to choose your proxies wisely: proxychains is only as good as the proxies you use. If you are intent on remaining anonymous, do not use a free proxy,
+
+
+-- Virtual Private Networks --
+
+Using a virtual private network (VPN) can be an effective way to keep your web traffic relatively anonymous and secure. A VPN is used to connect to an intermediary internet device such as a router that sends your traffic to its ultimate destination tagged with the IP address of the router.
+Using a VPN can certainly enhance your security and privacy, but it’s not a guarantee of anonymity. The internet device you connect to must record or log your IP address to be able to properly send the data back to you, so anyone able to access these records can uncover information about you.
+The beauty of VPNs is that they are simple and easy to work with. You would use your browser as usual to navigate the web, but it will appear to anyone watching that your traffic is coming from the IP address and location of the internet VPN device and not your own.
+
+VPN services according to CNET
+
+- IPVanish
+- NordVPN
+- ExpressVPN
+- CyberGhost
+- Golden Frog VPN
+- Hide My Ass (HMA)
+- Private Internet Access
+- PureVPN
+- TorGuard
+- Buffered VPN
+
+The strength of a VPN is that all your traffic is encrypted when it leaves your computer, thus protecting you against snooping, and your IP address is cloaked by the VPN IP address when you visit a site. As with a proxy server, the owner of the VPN has your originating IP address (otherwise they couldn’t send your traffic back to you). If they are pressured by espionage agencies or law enforcement, they might give up your identity. One way to prevent that is to use only VPNs that promise not to store or log any of this information
+
+
+-- Encrypted Email --
+
+One way to prevent eavesdropping on your email is to use encrypted email. ProtonMail encrypts your email from end to end or browser to browser. This means that your email is encrypted on ProtonMail servers - even the ProtonMail administrators can’t read your email.
+
+
+https://hide.mn/en/
+https://proton.me/mail
