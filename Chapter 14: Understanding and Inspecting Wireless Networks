@@ -104,7 +104,7 @@ phy0        wlan0             rt18187     Realtek Semiconductor Corp RTL8187
 
 --snip--
 
-Note that airmon-ng will rename your wireless interface: mine has been renamed “wlan0mon,” though yours may be different. 
+Note: airmon-ng will rename your wireless interface: mine has been renamed “wlan0mon,” though yours may be different. 
 
 The airodump-ng command captures and displays the key data from broadcasting APs and any clients connected to those APs or within the vicinity. 
 
@@ -129,7 +129,7 @@ BSSID               Station             PWR   Rate   Lost   Frames   Probe
 01:02:CC:DD:03:CF   A0:A3:E2:44:7C:E5
 
 
-Note that airodump-ng splits the output screen into an upper and lower portion. The upper portion has information on the broadcasting APs, including the BSSID, the power of the AP, how many beacon frames have been detected, the data throughput rate, how many packets have traversed the wireless card, the channel (1–14), the theoretical throughput limit, the encryption protocol, the cipher used for encryption, the authentication type, and the ESSID (commonly referred to as SSID). In the client portion, the output tells us that one client is not associated, meaning it has been detected but is not connected to any AP, and that another is associated with a station, meaning it’s connected to the AP at that address.
+Note: airodump-ng splits the output screen into an upper and lower portion. The upper portion has information on the broadcasting APs, including the BSSID, the power of the AP, how many beacon frames have been detected, the data throughput rate, how many packets have traversed the wireless card, the channel (1–14), the theoretical throughput limit, the encryption protocol, the cipher used for encryption, the authentication type, and the ESSID (commonly referred to as SSID). In the client portion, the output tells us that one client is not associated, meaning it has been detected but is not connected to any AP, and that another is associated with a station, meaning it’s connected to the AP at that address.
 
 Now you have all the information you need to crack the AP!
 
