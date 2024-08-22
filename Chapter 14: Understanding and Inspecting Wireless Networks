@@ -12,9 +12,9 @@ Power: The closer you are to the Wi-Fi AP, the greater the power, and the easier
 
 Security This is the security protocol used on the Wi-Fi AP that is being read from. There are three primary security protocols for Wi-Fi. 
 
-- Wired Equivalent Privacy (WEP), was badly flawed and easily cracked. 
-- Wi-Fi Protected Access (WPA), was a bit more secure. 
-- WPA2-PSK, which is much more secure and uses a preshared key (PSK) that all users share, is now used by nearly all Wi-Fi APs (except enterprise Wi-Fi).
+- Wired Equivalent Privacy (WEP): was badly flawed and easily cracked. 
+- Wi-Fi Protected Access (WPA): was a bit more secure. 
+- WPA2-PSK: is much more secure and uses a preshared key (PSK) that all users share, is now used by nearly all Wi-Fi APs (except enterprise Wi-Fi).
 
 Modes Wi-Fi can operate in one of three modes: managed, master, or monitor
 
