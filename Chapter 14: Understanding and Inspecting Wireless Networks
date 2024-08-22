@@ -40,7 +40,8 @@ In Kali Linux, Wi-Fi interfaces are usually designated as wlanX, with X represen
    --snip--
 ➊ wlan0 Link encap:EthernetHWaddr 00:c0:ca:3f:ee:02
 
-# See your Wi-Fi interfaces
+
+# Wi-Fi Interfaces
 
 kali >iwconfig
 lo    no wireless extensions
