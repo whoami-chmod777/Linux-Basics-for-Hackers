@@ -54,7 +54,7 @@ wlan0 IEEE 802.11bg   ESSID:off/any
 
 eth0   no wireless extensions
 
-# See all the wireless access points your network card can reach
+# See all Wireless Access Points your Network Card can reach
 
 kali >iwlist wlan0 scan
 wlan0       Scan completed:
