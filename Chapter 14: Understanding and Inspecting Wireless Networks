@@ -157,6 +157,136 @@ kali >aircrack-ng -w wordlist.dic -b 01:01:AA:BB:CC:22 Hacker-ArisePSK.cap
 
 -- Detecting and Connecting to Bluetooth --
 
+- How Bluetooth Works -
+Bluetooth is a universal protocol for low-power, near-field communication operating at 2.4–2.485GHz using spread spectrum, frequency hopping at 1,600 hops per second. It named after the 10th-century Danish king Harald Bluetooth.
+The Bluetooth specification has a minimum range of 10 meters. 
+
+Connecting two Bluetooth devices is referred to as pairing. Pretty much any two Bluetooth devices can connect to each other, but they can pair only if they are in discoverable mode. A Bluetooth device in discoverable mode transmits the following information:
+
+•   Name
+•   Class
+•   List of services
+•   Technical information
+
+When the two devices pair, they exchange a secret or  link key. Each stores this link key so it can identify the other in  future pairings.
+
+Every device has a unique 48-bit identifier (a MAC-like address) and usually a manufacturer-assigned name.
+
+
+-- Bluetooth Scanning and Reconnaissance --
+
+BlueZ has a number of simple tools we can use to manage and scan Bluetooth devices
+
+kali >apt-get install bluez
+
+
+> Scanning for a Bluetooth device
+
+kali >hciconfig
+hci0: Type: BR/EDR   Bus: USB
+      BD Address: 10:AE:60:58:F1:37   ACL   MTU: 310:10   SCO   MTU:   64:8
+      UP RUNNING PSCAN INQUIRY
+      RX bytes:131433 acl:45 sco:0 events:10519   errors:0
+      TX bytes:42881   acl:45 sco:0 commands:5081 errors:0
+
+
+> Check Connection Availability. If the command runs successfully, we should see no output, just a new prompt.
+
+kali >hciconfig hci0 up
+
+
+> Scan for Bluetooth devices within a range
+
+kali >hcitool --help
+
+kali >hcitool scan
+Scanning...
+      72:6E:46:65:72:66      ANDROID BT
+      22:C5:96:08:5D:32      SCH-I535
+
+
+> Gather more information about detected devices
+
+kali >hcitool inq
+Inquiring...
+    24:C5:96:08:5D:32    clock offset:0x4e8b      class:0x5a020c
+    76:6F:46:65:72:67    clock offset:0x21c0      class:0x5a020c
+	
+	
+> Scanning for Services with sdptool
+
+Service Discovery Protocol (SDP) is a Bluetooth protocol for searching for Bluetooth services
+
+kali >sdptool browse 76:6E:46:63:72:66
+Browsing 76:6E:46:63:72:66...
+Service RecHandle: 0x10002
+Service Class ID List:
+  ""(0x1800)
+Protocol Descriptor List:
+  "L2CAP"   (0x0100)
+    PSM: 31
+  "ATT" (0x0007)
+    uint16: 0x0001
+    uint16: 0x0005
+
+--snip-
+
+
+> Pinging a Bluetooth device
+
+kali >l2ping 76:6E:46:63:72:66 -c 3
+Ping: 76:6E:46:63:72:66 from 10:AE:60:58:F1:37 (data size 44)...
+44 bytes 76:6E:46:63:72:66 id 0 time 37.57ms
+44 bytes 76:6E:46:63:72:66 id 1 time 27.23ms
+44 bytes 76:6E:46:63:72:66 id 2 time 27.59ms
+
+3 sent, 3 received, 0% loss
+
+
+-- Commands Overview --
+
+kali >apt-get install bluez
+
+kali >hciconfig
+kali >hciconfig hci0 up
+
+kali >hcitool --help
+kali >hcitool scan
+kali >hcitool inq
+
+kali >sdptool browse 76:6E:46:63:72:66
+kali >l2ping 76:6E:46:63:72:66 -c 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
