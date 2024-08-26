@@ -1,1 +1,92 @@
 
+All operating systems are made up of at least two major components. The first and most important of these is the kernel.  The kernel is at the center of the operating system and controls everything the operating system does, including managing memory, controlling the CPU, and even controlling what the user sees on the screen. The second element of the operating system is often referred to  as user land and includes nearly everything else.
+The kernel is designed to be a protected or privileged area that can only be accessed by root or other privileged accounts. As a result, most operating systems provide users and services access only to user land, where the user can access nearly anything they need without taking control of the operating system.
+
+What Is a Kernel Module
+The kernel is the central nervous system of your operating system, controlling everything it does, including managing interactions between hardware components and starting the necessary services. The kernel operates between the user applications you see and the hardware that runs everything, like the CPU, memory, and hard drive.
+Linux has the capability of adding some modules to the kernel without going through that entire process. These modules are referred to as loadable kernel modules, or LKMs.
+LKMs have access to the lowest levels of the kernel by necessity, making them an incredibly vulnerable target for hackers. A particular type of malware known as a rootkit embeds itself into the kernel of the operating systems, often through these LKMs.
+
+
+-- Checking the Kernel Version --
+
+kali >uname -a
+Linux Kali 4.19.0-kalil-amd64 #1 SMP Debian 4.19.13-lkalil (2019-01-03) x86_64
+
+kali >uname -r
+4.19.0-kalil-amd64
+
+kali >cat /proc/version
+Linux version 4.19.0-kalil-amd64 (devel@kali.org) (gcc version 8.2.0 20190103
+(Debian 8.2.0-13)   ) #1 SMP Debian 4.19.13-lkalil   (2019-01-03)
+
+
+-- Kernel Tuning with sysctl --
+
+Modern Linux kernels use the sysctl command to tune kernel options. All changes you make with sysctl remain in effect only until you reboot the system. To make any changes permanent, you have to edit the configuration file for sysctl directly at /etc/sysctl.conf.
+
+kali >sysctl -a | less
+dev.cdrom.autoclose = 1
+dev.cdrom.autoeject = 0
+dev.cdrom.check_media = 0
+dev.cdrom.debug = 0
+--snip--
+
+kali >sysctl -a | grep ipv4 | less
+net.ipv4.ip_dynaddr = 0
+net.ipv4.ip_early_demux = 0
+net.ipv4.ip_forward = 0
+net.ipv4.ip_forward_use_pmtu = 0
+--snip--
+
+> Enable IP forwarding
+kali >sysctl -w net.ipv4.ip_forward=1
+
+> Change the Settings Permanent
+kali >vi /etc/sysctl.conf
+
+
+-- Managing Kernel Modules --
+
+The lsmod command lists all the kernel modules as well as information on their size and what other modules may use them.
+
+kali >lsmod
+Module                        Size       Used by
+nfnetlink_queue               20480      0
+nfnetlink_log                 201480     0
+nfnetlink                     16384      2 nfnetlink_log, nfnetlink_queue
+bluetooth                     516096     0
+rfkill                        28672      2 bluetooth
+
+--snip--
+
+For instance, the nfnetlink module, a message-based protocol for communicating between the kernel and user space, is 16384 bytes and used by both the nfnetlink_log module and the nf_netlink_queue module.
+
+
+-- Find more Information with modinfo --
+
+To learn more about any of the kernel modules, we can use the modinfo command. modinfo followed by the name of the module you want to learn about.
+
+kali >modinfo bluetooth
+filename:   /lib/modules/4.19.0-kali-amd64/kernel/net/bluetooth/bluetooth.ko
+alias:      net-pf-31
+license:    GPL
+version:    2.22
+description:Bluetooth Core ver 2.22
+author:      Marcel Holtman <marcel@holtmann.org>
+srcversion: 411D7802CC1783894E0D188
+depends:    rfkill, ecdh_generic, crc16
+intree:      Y
+vermagic:   4.19.0-kali1-amd64   SMP mod_unload modversions
+parm:       disable_esco: Disable eSCO connection creation (bool)
+parm:       disable_ertm: Disable enhanced retransmission mode (bool)
+
+
+-- Adding and Removing Modules with modprobe --
+
+kali >modprobe -a <module name>
+kali >modprobe -r <module to be removed>
+
+kali >modprobe -a HackersAriseNewVideo
+kali >dmesg | grep video
+kali >modprobe -r HackersAriseNewVideo
