@@ -1,1 +1,125 @@
 
+You’ll learn more about how to use the cron daemon and crontab to set up scripts to run automatically, even while the system is unattended. You’ll also learn how to set up startup scripts that automatically run whenever the system is booted, which will provide you with the necessary services that you’ll need to run during your busy day of hacking.
+
+Scheduling an Event or Job 
+The cron daemon and the cron table (crontab) are the most useful tools for scheduling regular tasks. The first, crond, is a daemon that runs in the background. The cron daemon checks the cron table for which commands to run at specified times.
+To schedule these tasks or jobs, enter them into the cron table file, located at /etc/crontab. The cron table has seven fields: the first five are used to schedule the time to run the task, the sixth field specifies the user, and the seventh field is used for the absolute path to the command you want to execute.
+Each of the five time fields represents a different element of time: the minute, hour, day of the month, month, and day of the week, in that order.
+
+
+The scan is run every night at 2:30 AM, Monday through Friday
+
+M  H   DOM  MON  DOW   USER   COMMAND
+30 2   *    *    1-5   root   /root/myscanningscript
+
+Note that the first field provides the minute (30), the second field provides the hour (2), the fifth field provides the days (1-5, or Monday through Friday), the sixth field defines the user (root), and the seventh field is the path to the script.
+
+
+-- Edit crontab --
+
+kali >crontab -e
+Select an editor. To change later, run 'select-editor'.
+1. /bin/nano   <----easiest
+2. /usr/bin/mcedit
+3. /usr/bin/vim.basic
+4. /usr/bin/vim.gtk
+5. /usr/bin/vim.tiny
+Choose 1-5 [1]:
+
+
+kali >leafpad /etc/crontab
+
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab, you don't have to run the 'crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# which no other crontabs do.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+# m h dom mon dow user command
+17 * * * * root cd / && run-parts --report /etc/cron.hourly
+25 6 * * * root test -x /usr/sbin/anacron II (cd / && run-parts
+47 6 * * 7 root test -x /usr/sbin/anacron II (cd / && run-parts
+52 6 1 * * root test -x /usr/sbin/anacron II (cd / && run-parts
+#
+
+
+-- Scheduling a Backup Task --
+
+Note that the hour field uses a 24-hour clock rather than using AM and PM, so 1 PM is, for example, 13:00. Also, note that the days of the week (DOW) start with Sunday (0) and end with Saturday (6).
+
+> Every Saturday Night/Sunday morning at 2 AM 
+
+00 2 * * 0 backup /bin/systembackup.sh
+
+1.   At the top of the hour (00)
+2.   Of the second hour (2)
+3.   Of any day of the month (*)
+4.   Of any month (*)
+5.   On Sunday (0)
+6.   As the backup user
+7.   Execute the script at /bin/systembackup.sh
+
+
+> The backup run on the 15th and 30th of every month, regardless of what days of the week
+
+00 2 15,30 * * backup /root/systembackup.sh
+
+When you want to specify multiple days, hours, or months, you need to list them separated by a comma
+
+
+> Back up the data every weeknight
+
+00 23 * * 1-5 backup /root/systembackup.sh
+
+
+> Schedule Your MySQLscanner
+
+00 9 * * * user /usr/share/MySQLsscanner.sh
+
+The job to run at 00 minutes, at the ninth hour, every day of the month (*), every month (*), every day of the week (*), and to run it as a regular user.
+
+00 2 * 6-8 0,6 user /usr/share/MySQLsscanner.sh
+
+
+-- Crontab Shortcuts --
+
+•   @yearly
+•   @annually
+•   @monthly
+•   @weekly
+•   @daily
+•   @midnight
+•   @noon
+•   @reboot
+
+@midnight      user   /usr/share/MySQLsscanner.sh
+
+Whenever you start your Linux system, a number of scripts are run to set up the environment for you. These are known as the rc scripts. After the kernel has initialized and loaded all its modules, the kernel starts a daemon known as init or initd. This daemon then begins to run a number of scripts found in /etc/init.d/rc. These scripts include commands for starting many of the services necessary to run your Linux system as you expect.
+
+
+-- Linux Runlevels --
+
+Linux has multiple runlevels that indicate what services should be started at bootup.
+
+0      Halt the system
+1      Single-user/minimal mode
+2-5    Multiuser modes
+6      Reboot the system
+
+
+-- Adding Services to rc.d --
+
+kali >update-rc.d <name of the script or service> <remove|defaults|disable|enable>
+
+kali >update-rc.d postgresql defaults
+
+kali >ps aux | grep postgresql
+root   3876    0.0      0.0   12720    964pts/1    S+   14.24   0.00 grep postgresql
+
+
+-- Adding Services to Your Bootup via a GUI --
+
+kali >apt-get install rcconf
+kali >rcconf
