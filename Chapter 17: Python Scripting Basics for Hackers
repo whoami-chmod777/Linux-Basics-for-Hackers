@@ -1,1 +1,266 @@
 
+Basic scripting skills are critical to becoming a master hacker. Without having developed some basic scripting skills, a beginner hacker who simply uses tools created by someone else will be condemned to the realm of script kiddies. This means that you will be limited to using tools developed by someone else, which decreases your probability of success and increases your probability of detection by antivirus (AV) software, intrusion detection systems (IDSs), and law enforcement. With some scripting skills, you can elevate yourself to the upper echelon of the master hackers!
+
+-- Adding Python Modules --
+
+- Using pip -
+Python has a package manager specifically for installing and managing Python packages known as pip (Pip Installs Packages)
+
+kali >apt-get install python3-pip
+kali >pip3 install <package name>
+
+kali >pip3 show pysnmp
+Name: pysnmp
+Version: 4.4.4
+Summary: SNMP library for Python
+Home-page: https://github.com/etingof/pysnmp
+Author: Ilya Etingof <etingof@gmail.com>
+Author-email: etingof@gmail.com
+License: BSD
+Location: usr/local/lib/python3.6/dist-packages
+Requires: ptsmi, pyansl, pycryptodomex
+
+kali >python3 setup.py install
+
+
+- Installing Third-Party Modules -
+To install a third-party module created by another member of the Python community you can simply use wget to download it from wherever it is being stored online, uncompress the module, and then run the python setup.py install command.
+
+kali >wget http://xael.org/norman/python/python-nmap/python-nmap-0.3.4.tar.gz
+--2019-03-10 17:48:32-- http://xael.org/norman/python/python-nmap/python-nmap-
+0.3.4.tar.gz
+Resolving xael.org (xael.org)...195.201.15.13
+Connecting to xael.org (xael.org)|195.201.15.13|:80...connected.
+
+--snip--
+
+2019-03-10 17.48:34 (113 KB/s)   - 'python-nmap-0.3.4.tar.gz' saved
+[40307/40307]
+
+kali >tar -xzf python-nmap-0.3.4.tar.gz
+kali >cd python-nmap-.03.4/
+
+kali >~/python-nmap-0.3.4 >python setup.py install
+running install
+running build
+running build_py
+creating build
+
+--snip--
+
+running install_egg_info
+writing /usr/local/lib/python2.7/dist-packages/python_nmap-0.3.4.egg.info
+
+
+-- Getting Started Scripting with Python --
+
+- Variables -
+
+#! /usr/bin/python3
+
+name="OccupyTheWeb"
+print("Greetings to " + name + " from Hackers-Arise. The Best Place to Learn Hacking!")
+
+kali >chmod 755 hackers-arise_greetings.py
+
+kali >./hackers-arise_greetings.py
+Greetings to OccupyTheWeb from Hackers-Arise. The Best Place to Learn Hacking!
+
+
+- Data Types -
+
+#! /usr/bin/python3
+
+HackersAriseStringVariable = "Hackers-Arise Is the Best Place to Learn Hacking"
+HackersAriseIntegerVariable = 12
+HackersAriseFloatingPointVariable = 3.1415
+HackersAriseList = [1, 2, 3, 4, 5, 6]
+HackersAriseDictionary = {'name': 'OccupyTheWeb', 'value' : 27}
+
+print(HackersAriseStringVariable)
+print(HackersAriseIntegerVariable)
+print(HackersAriseFloatingPointVariable)
+
+fruit_color = {'apple': 'red', 'grape': 'green', orange: 'orange'}
+print(fruit_color['grape'])
+
+fruit_color['apple'] = 'green'
+
+kali >chmod 755 secondpythonscript.py
+kali >./secondpythonscript.py
+
+
+- Comments -
+Comments are simply parts of your code that explain what the code is meant to do. Comments are ignored by the interpreter.
+
+#! /usr/bin/python3
+
+# single-line comments:
+# multi-line comments (""" ... """))
+"""
+This is my first Python script with comments. Comments are used to help explain code to ourselves and fellow programmers. In this case, this simple script creates a greeting for the user.
+"""
+name = "OccupyTheWeb"
+print ("Greetings to "+name+" from Hackers-Arise. The Best Place to Learn Hacking!")
+
+kali >./hackers-arise_greetings.py
+
+
+- Functions -
+Functions in Python are bits of code that perform a particular action.
+
+•   exit() exits from a program.
+•   float() returns its argument as a floating-point number. For example, float(1) would return 1.0.
+•   help() displays help on the object specified by its argument.
+•   int() returns the integer portion of its argument (truncates).
+•   len() returns the number of elements in a list or dictionary.
+•   max() returns the maximum value from its argument (a list).
+•   open() opens the file in the mode specified by its arguments.
+•   range() returns a list of integers between two values specified by its arguments.
+•   sorted() takes a list as an argument and returns it with its elements in order.
+•   type() returns the type of its argument (for example, int, file, method, function).
+
+
+Lists
+An array is a list of values that can be retrieved, deleted, replaced, or worked with in various ways by referencing a particular value in the array by its position in the list, known as its index. Lists in Python are iterable, which means that the list can provide successive elements when you run all the way through it.
+
+--snip--
+
+print (HackersAriseStringVariable)
+print (HackersAriseIntegerVariable)
+print (HackersAriseFloatingPointVariable)
+print (HackersAriseList[3])
+
+
+- Modules -
+A module is simply a section of code saved into a separate file so you can use it as many times as you need in your program without having to type it all out again.
+
+import nmap
+
+
+- Object-Oriented Programming (OOP) -
+The idea behind OOP-based programming languages is to create objects that act like things in the real world. 
+
+Objects are members of a class, which is basically a template for creating objects with shared initial variables, properties, and methods.
+
+
+-- Network Communications in Python --
+
+- Building a TCP Client -
+
+#! /usr/bin/python3
+
+# Banner-Grabbing 
+import socket
+
+s = socket.socket()
+s.connect(("127.0.0.1", 22))
+
+answer = s.recv(1024)
+
+print(answer)755
+   s.close()
+
+kali >./HackersAriseSSHBannerGrab.py
+
+
+- TCP Listener -
+
+#! /usr/bin/python3
+
+# TCP-Listener 
+import socket
+
+TCP_IP = "192.168.181.190"
+TCP_PORT = 6996
+BUFFER_SIZE = 100
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((TCP_IP, TCP_PORT))
+s.listen(1)
+conn, addr = s.accept()
+  print('Connection address: ', addr )
+  
+  while True:
+
+  data=conn.recv(BUFFER_SIZE)
+   if not data:
+       break
+   print("Received data: ", data)
+       conn.send(data)   #echo
+
+conn.close()
+
+kali >./tcp_server.py
+
+
+- Dictionaries, Loops, and Control Statements -
+
+>> Dictionaries
+dict = {key1:value1, key2:value2, key3:value3...}
+
+>> Control Statements
+
+> Basic if statement
+if number > 5:
+    print("The number is greater than 5")
+
+> If-Else statement
+if number > 15:
+    print("The number is greater than 15")
+else:
+    print("The number is 15 or less")
+
+if userid == 0:
+   print("You are the root user")
+else:
+   print("You are NOT the root user")
+
+> If-Elif-Else statement
+if number > 15:
+    print("The number is greater than 15")
+elif number > 10:
+    print("The number is greater than 10 but 15 or less")
+else:
+    print("The number is 10 or less")
+
+> While Loop
+
+count = 1
+while (count <= 10):
+   print(count)
+   count += 1
+
+> For Loop
+
+for password in passwords:
+    attempt = connect(username, password)
+
+    if attempt == "230":
+       print("Password found: " + password)
+       sys.exit(0)
+
+
+-- Banner Grabber Script --
+
+#! /usr/bin/python3
+
+import socket
+Ports = [21, 22, 25, 3306]
+
+for Port in Ports:
+
+s = socket.socket()
+
+print('This Is the Banner for the Port')
+print(Port)
+
+s.connect(("192.168.1.101", Port))
+answer = s.recv (1024)
+
+print(answer)
+    s.close()
+
+
+The Python Package Index (PyPI)
+https://pypi.org/
